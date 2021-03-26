@@ -1,3 +1,4 @@
+import { EROFS } from "constants";
 import express from "express";
 import { promises as fs } from "fs";
 
@@ -18,6 +19,12 @@ router.post("/", async (req, res, next) => {
     const grades = JSON.parse(await fs.readFile(global.gradesFile));
 
     const { student, subject, type, value } = req.body;
+
+    if (!student || !subject || !type || !value) {
+      throw new Error(
+        "The following properties are necessary to add a new grade: student, subject, type and value. Check API docs for more info"
+      );
+    }
 
     const newGrade = {
       id: grades.nextId++,
@@ -44,9 +51,19 @@ router.put("/:id", async (req, res, next) => {
 
     const { student, subject, type, value } = req.body;
 
+    if (!student || !subject || !type || !value) {
+      throw new Error(
+        "The following properties are necessary to add a new grade: student, subject, type and value. Check API docs for more info"
+      );
+    }
+
     const studentIndex = grades.grades.findIndex(
       (grade) => grade.id === Number(req.params.id)
     );
+
+    if (studentIndex === -1) {
+      throw new Error("Student not found, check id.");
+    }
 
     const newGrade = {
       id: Number(req.params.id),
@@ -71,7 +88,6 @@ router.put("/:id", async (req, res, next) => {
 */
 
 router.use((err, req, res, next) => {
-  console.log(err.message);
-  res.status(500).send("something went wrong, check console.");
+  res.status(500).send(err.message);
 });
 export default router;
