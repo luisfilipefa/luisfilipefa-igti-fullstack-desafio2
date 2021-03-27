@@ -48,16 +48,18 @@ router.get("/average", async (req, res, next) => {
     throw new Error("Properties subject and type are demanded to search.");
   }
 
-  const totalSum = grades.grades.filter((grade) => {
+  const filteredGrades = grades.grades.filter((grade) => {
     if (grade.subject === req.query.subject && grade.type === req.query.type) {
       return grade;
     }
   });
 
-  const average = totalSum.reduce((acc, grade) => {
+  const totalSum = filteredGrades.reduce((acc, grade) => {
     acc += grade.value;
-    return acc / totalSum.length;
+    return acc;
   }, 0);
+
+  const average = totalSum / filteredGrades.length;
 
   res.send(
     `Average value for subject "${req.query.subject}" and type "${req.query.type}" is: ${average}`
